@@ -1,7 +1,7 @@
 - hosts: servers
   become: true
   vars:
-    discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from .env file
+    discord_webhook_url: ${discord_webhook_url}  # Replace with your actual webhook URL
   tasks:
     - name: Update apt repo and cache on all Debian/Ubuntu boxes
       apt:
