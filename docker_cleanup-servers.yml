@@ -14,4 +14,4 @@
   
   vars:
     # Specify the path to the Docker executable based on the host
-    docker_command: "{{'/bin/docker'"
+    docker_command: "{{'/bin/docker'}}"
