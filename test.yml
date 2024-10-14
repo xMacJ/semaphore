@@ -1,0 +1,122 @@
+- hosts: servers
+  become: true
+  vars:
+    discord_webhook_url: "https://discord.com/api/webhooks/1256382152011157635/DumaWsde-luZiSsRwKcXewb_Cp3ECTTEVXxYhWaSie_oOSAguJ_1r1pXm0A-CsMct19A"  # Replace with your actual webhook URL
+  tasks:
+    - name: Update apt repo and cache on all Debian/Ubuntu boxes
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages on servers
+      apt:
+        upgrade: dist
+        force_apt_get: yes
+      register: upgrade_result
+
+    - name: Check if a reboot is needed on all servers
+      stat:
+        path: /var/run/reboot-required
+        get_checksum: false
+      register: reboot_required_file
+
+    - name: Gather list of upgraded packages
+      shell: grep 'upgrade ' /var/log/apt/history.log | grep -v 'End-Date' | tail -n 10
+      register: upgrade_log
+      when: upgrade_result.changed
+
+    - name: Send Discord notification for package upgrade
+      uri:
+        url: "{{ discord_webhook_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "embeds": [{
+              "title": "Package Upgrade Completed",
+              "description": "Packages have been upgraded on {{ inventory_hostname }}.",
+              "color": 3066993,
+              "fields": [
+                {
+                  "name": "Server",
+                  "value": "{{ inventory_hostname }}",
+                  "inline": true
+                },
+                {
+                  "name": "Date",
+                  "value": "{{ ansible_date_time.date }}",
+                  "inline": true
+                },
+                {
+                  "name": "Time",
+                  "value": "{{ ansible_date_time.time }}",
+                  "inline": true
+                },
+                {
+                  "name": "Upgraded Packages",
+                  "value": "{{ upgrade_log.stdout }}",
+                  "inline": false
+                }
+              ]
+            }]
+          }
+        body_format: json
+        status_code: 204  # Accept 204 status code
+      when: upgrade_result.changed
+
+    - name: Reboot the box if kernel updated
+      reboot:
+        msg: "Reboot initiated by Ansible for kernel updates"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: uptime
+      when: reboot_required_file.stat.exists
+
+    - name: Gather uptime
+      command: uptime
+      register: uptime_result
+      when: reboot_required_file.stat.exists
+
+    - name: Send Discord notification for reboot
+      uri:
+        url: "{{ discord_webhook_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "embeds": [{
+              "title": "Server Rebooted",
+              "description": "The server {{ inventory_hostname }} has been rebooted due to kernel updates.",
+              "color": 15158332,
+              "fields": [
+                {
+                  "name": "Server",
+                  "value": "{{ inventory_hostname }}",
+                  "inline": true
+                },
+                {
+                  "name": "Date",
+                  "value": "{{ ansible_date_time.date }}",
+                  "inline": true
+                },
+                {
+                  "name": "Time",
+                  "value": "{{ ansible_date_time.time }}",
+                  "inline": true
+                },
+                {
+                  "name": "Uptime",
+                  "value": "{{ uptime_result.stdout }}",
+                  "inline": false
+                }
+              ]
+            }]
+          }
+        body_format: json
+        status_code: 204  # Accept 204 status code
+      when: reboot_required_file.stat.exists
