@@ -1,10 +1,7 @@
 - hosts: servers
   become: true
   vars:
-    discord_webhook_url: ${discord_webhook_url}  # Replace with your actual webhook URL
-    upgrade_message: ""
-    reboot_message: ""
-
+    discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from .env file
   tasks:
     - name: Update apt repo and cache on all Debian/Ubuntu boxes
       apt:
@@ -29,9 +26,13 @@
       register: upgrade_log
       when: upgrade_result.changed
 
-    - name: Prepare upgrade notification message
-      set_fact:
-        upgrade_message: |
+    - name: Send Discord notification for package upgrade
+      uri:
+        url: "{{ discord_webhook_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
           {
             "embeds": [{
               "title": "Package Upgrade Completed",
@@ -61,6 +62,8 @@
               ]
             }]
           }
+        body_format: json
+        status_code: 204  # Accept 204 status code
       when: upgrade_result.changed
 
     - name: Reboot the box if kernel updated
@@ -78,9 +81,13 @@
       register: uptime_result
       when: reboot_required_file.stat.exists
 
-    - name: Prepare reboot notification message
-      set_fact:
-        reboot_message: |
+    - name: Send Discord notification for reboot
+      uri:
+        url: "{{ discord_webhook_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
           {
             "embeds": [{
               "title": "Server Rebooted",
@@ -110,60 +117,6 @@
               ]
             }]
           }
+        body_format: json
+        status_code: 204  # Accept 204 status code
       when: reboot_required_file.stat.exists
-
-    - name: Send Discord notification for package upgrade
-      uri:
-        url: "{{ discord_webhook_url }}"
-        method: POST
-        headers:
-          Content-Type: "application/json"
-        body: "{{ upgrade_message }}"
-        body_format: json
-        status_code: 204  # Accept 204 status code
-      when: upgrade_message != ""
-
-    - name: Send Discord notification for reboot
-      uri:
-        url: "{{ discord_webhook_url }}"
-        method: POST
-        headers:
-          Content-Type: "application/json"
-        body: "{{ reboot_message }}"
-        body_format: json
-        status_code: 204  # Accept 204 status code
-      when: reboot_message != ""
-
-    - name: Send final notification
-      uri:
-        url: "{{ discord_webhook_url }}"
-        method: POST
-        headers:
-          Content-Type: "application/json"
-        body: |
-          {
-            "embeds": [{
-              "title": "Playbook Execution Completed",
-              "description": "The playbook has finished running on {{ inventory_hostname }}.",
-              "color": 5814783,
-              "fields": [
-                {
-                  "name": "Server",
-                  "value": "{{ inventory_hostname }}",
-                  "inline": true
-                },
-                {
-                  "name": "Date",
-                  "value": "{{ ansible_date_time.date }}",
-                  "inline": true
-                },
-                {
-                  "name": "Time",
-                  "value": "{{ ansible_date_time.time }}",
-                  "inline": true
-                }
-              ]
-            }]
-          }
-        body_format: json
-        status_code: 204  # Accept 204 status code
