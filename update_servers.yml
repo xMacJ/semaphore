@@ -1,7 +1,7 @@
 - hosts: servers
   become: true
   vars:
-    discord_webhook_url: "https://discord.com/api/webhooks/1256382152011157635/DumaWsde-luZiSsRwKcXewb_Cp3ECTTEVXxYhWaSie_oOSAguJ_1r1pXm0A-CsMct19A"  # Replace with your actual webhook URL
+    discord_webhook_url: ${discord_webhook_url}  # Replace with your actual webhook URL
   tasks:
     - name: Update apt repo and cache on all Debian/Ubuntu boxes
       apt:
