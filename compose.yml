@@ -35,7 +35,7 @@ services:
     environment:
       SEMAPHORE_DB_USER: ${SEMAPHORE_DB_USER}
       SEMAPHORE_DB_PASS: ${SEMAPHORE_DB_PASS}
-      SEMAPHORE_DB_HOST: ${SEMAPHORE_DB_HOST} # Use localhost since we are using host networking
+      SEMAPHORE_DB_HOST: ${SEMAPHORE_DB_HOST}
       SEMAPHORE_DB_PORT: 3306 # MySQL port
       SEMAPHORE_DB_DIALECT: mysql
       SEMAPHORE_DB: ${SEMAPHORE_DB}
