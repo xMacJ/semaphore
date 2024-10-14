@@ -1,7 +1,11 @@
+---
 - hosts: servers
   become: true
   vars:
     discord_webhook_url: "{{ lookup('dotenv', 'DISCORD_WEBHOOK_URL') }}"  # Load from .env file
+    upgrade_message: ""
+    reboot_message: ""
+
   tasks:
     - name: Update apt repo and cache on all Debian/Ubuntu boxes
       apt:
@@ -26,13 +30,9 @@
       register: upgrade_log
       when: upgrade_result.changed
 
-    - name: Send Discord notification for package upgrade
-      uri:
-        url: "{{ discord_webhook_url }}"
-        method: POST
-        headers:
-          Content-Type: "application/json"
-        body: |
+    - name: Prepare upgrade notification message
+      set_fact:
+        upgrade_message: |
           {
             "embeds": [{
               "title": "Package Upgrade Completed",
@@ -62,8 +62,6 @@
               ]
             }]
           }
-        body_format: json
-        status_code: 204  # Accept 204 status code
       when: upgrade_result.changed
 
     - name: Reboot the box if kernel updated
@@ -81,13 +79,9 @@
       register: uptime_result
       when: reboot_required_file.stat.exists
 
-    - name: Send Discord notification for reboot
-      uri:
-        url: "{{ discord_webhook_url }}"
-        method: POST
-        headers:
-          Content-Type: "application/json"
-        body: |
+    - name: Prepare reboot notification message
+      set_fact:
+        reboot_message: |
           {
             "embeds": [{
               "title": "Server Rebooted",
@@ -117,6 +111,26 @@
               ]
             }]
           }
+      when: reboot_required_file.stat.exists
+
+    - name: Send Discord notification for package upgrade
+      uri:
+        url: "{{ discord_webhook_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: "{{ upgrade_message }}"
         body_format: json
         status_code: 204  # Accept 204 status code
-      when: reboot_required_file.stat.exists
+      when: upgrade_message != ""
+
+    - name: Send Discord notification for reboot
+      uri:
+        url: "{{ discord_webhook_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: "{{ reboot_message }}"
+        body_format: json
+        status_code: 204  # Accept 204 status code
+      when: reboot_message != ""
