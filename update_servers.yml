@@ -2,7 +2,7 @@
 - hosts: servers
   become: true
   vars:
-    discord_webhook_url: "{{ lookup('dotenv', 'DISCORD_WEBHOOK_URL') }}"  # Load from .env file
+    discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from environment variable
     upgrade_message: ""
     reboot_message: ""
 
