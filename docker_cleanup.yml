@@ -14,4 +14,4 @@
   
   vars:
     # Specify the path to the Docker executable based on the host
-    docker_command: "{{ '/bin/docker' if inventory_hostname in groups['servers'] else '/usr/local/bin/docker' }}"
+    docker_command: "{{'/usr/local/bin/docker' }}"
