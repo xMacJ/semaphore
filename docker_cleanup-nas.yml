@@ -6,11 +6,11 @@
     - name: Remove unused Docker images
       command: "{{ docker_command }} image prune -a -f"
       
-    - name: Remove unused Docker volumes
-      command: "{{ docker_command }} volume prune -f"
+    # - name: Remove unused Docker volumes
+    #   command: "{{ docker_command }} volume prune -f"
       
-    - name: Remove unused Docker networks
-      command: "{{ docker_command }} network prune -f"
+    # - name: Remove unused Docker networks
+    #   command: "{{ docker_command }} network prune -f"
   
   vars:
     # Specify the path to the Docker executable based on the host
