@@ -1,0 +1,93 @@
+---
+- name: Proxmox Backup Script with Discord Notification
+  hosts: servers # Set the hosts in semaphore
+  vars:
+    pbs_repository: "{{ lookup('env', 'PBS_REPOSITORY') }}"  # Load from .env file
+    pbs_password: "{{ lookup('env', 'PBS_PASSWORD') }}"  # Load from .env file
+    pbs_fingerprint: "{{ lookup('env', 'PBS_FINGERPRINT') }}"  # Load from .env file
+    discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from .env file
+    max_retries: 5
+    retry_delay: 60  # in seconds
+    excluded_dirs: "/dev, /proc, /sys, /run, /tmp"
+
+  tasks:
+    - name: Initialize backup attempts
+      set_fact:
+        retry_count: 0
+        backup_success: false
+        start_time: "{{ ansible_date_time.epoch }}"
+
+    - name: Run Proxmox Backup with retry logic
+      block:
+        - name: Attempt backup
+          command: >
+            proxmox-backup-client backup root.pxar:/ --exclude dev --exclude proc --exclude sys --exclude run --exclude tmp --repository {{ pbs_repository }}
+          register: backup_result
+          failed_when: backup_result.rc != 0
+          retries: "{{ max_retries }}"
+          delay: "{{ retry_delay }}"
+          until: backup_result is succeeded
+
+        - name: Set backup success to true
+          set_fact:
+            backup_success: true
+      rescue:
+        - name: Send failure notification to Discord
+          uri:
+            url: "{{ discord_webhook_url }}"
+            method: POST
+            headers:
+              Content-Type: "application/json"
+            body_format: json
+            body:
+              embeds:
+                - title: "Backup Failed ❌"
+                  description: "The backup process on `{{ ansible_hostname }}` has failed after multiple attempts."
+                  color: 16711680
+                  fields:
+                    - name: "Status"
+                      value: "`Failed`"
+                      inline: true
+                    - name: "Server"
+                      value: "`{{ ansible_hostname }}`"
+                      inline: true
+                    - name: "Retries"
+                      value: "`{{ retry_count }}`"
+                      inline: true
+                    - name: "Excluded Directories"
+                      value: "`{{ excluded_dirs }}`"
+                      inline: false
+                  footer:
+                    text: "Backup Script"
+                  timestamp: "{{ ansible_date_time.iso8601 }}"
+          ignore_errors: yes
+
+    - name: Send success notification to Discord (only if successful)
+      uri:
+        url: "{{ discord_webhook_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          embeds:
+            - title: "Backup Successful ✅"
+              description: "The backup process on `{{ ansible_hostname }}` completed successfully without errors."
+              color: 65280
+              fields:
+                - name: "Status"
+                  value: "`Successful`"
+                  inline: true
+                - name: "Server"
+                  value: "`{{ ansible_hostname }}`"
+                  inline: true
+                - name: "Retries"
+                  value: "`{{ retry_count }}`"
+                  inline: true
+                - name: "Excluded Directories"
+                  value: "`{{ excluded_dirs }}`"
+                  inline: false
+              footer:
+                text: "Backup Script"
+              timestamp: "{{ ansible_date_time.iso8601 }}"
+      when: backup_success
