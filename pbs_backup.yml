@@ -4,6 +4,6 @@
   become: yes  # Elevate privileges if needed
   tasks:
     - name: Run PBS backup script
-      shell: /mnt/Apex/Scripts/pbs_backup/pbs_backup.sh
+      shell: /mnt/Apex/Scripts/pbs_backup/pbs_backup.sh # Path to the script
       args:
         chdir: /mnt/Apex/Scripts/pbs_backup  # Change directory before running the script
