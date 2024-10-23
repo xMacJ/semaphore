@@ -7,9 +7,9 @@
     pbs_password: "{{ lookup('env', 'PBS_PASSWORD') }}"  # Load from semaphore env variable or .env file
     pbs_fingerprint: "{{ lookup('env', 'PBS_FINGERPRINT') }}"  # Load from semaphore env variable or .env file
     discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from semaphore env variable or .env file
-    max_retries: 5 # Retries in case there is a connection issue for some reason
+    max_retries: 5  # Retries in case there is a connection issue for some reason
     retry_delay: 60  # in seconds
-    excluded_dirs: "/dev, /proc, /sys, /run, /tmp" # Exclude non critical directories which may cause issues with backup
+    excluded_dirs: "/dev, /proc, /sys, /run, /tmp"  # Exclude non-critical directories which may cause issues with backup
 
   tasks:
     - name: Initialize backup attempts
@@ -29,9 +29,17 @@
           delay: "{{ retry_delay }}"
           until: backup_result is succeeded
 
+        - name: Print backup attempt status
+          debug:
+            msg: >
+              Attempt {{ retry_count + 1 }} of {{ max_retries }}: 
+              Backup {{ 'succeeded' if backup_result is succeeded else 'failed' }} 
+              on {{ ansible_hostname }}.
+
         - name: Set backup success to true
           set_fact:
             backup_success: true
+
       rescue:
         - name: Send failure notification to Discord
           uri:
