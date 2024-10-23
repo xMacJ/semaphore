@@ -2,10 +2,10 @@
 - name: Proxmox Backup Script with Discord Notification
   hosts: servers # Set the hosts in semaphore
   vars:
-    pbs_repository: "{{ lookup('env', 'PBS_REPOSITORY') }}"  # Load from .env file
-    pbs_password: "{{ lookup('env', 'PBS_PASSWORD') }}"  # Load from .env file
-    pbs_fingerprint: "{{ lookup('env', 'PBS_FINGERPRINT') }}"  # Load from .env file
-    discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from .env file
+    pbs_repository: "{{ lookup('env', 'PBS_REPOSITORY') }}"  # Load from env 
+    pbs_password: "{{ lookup('env', 'PBS_PASSWORD') }}"  # Load from env 
+    pbs_fingerprint: "{{ lookup('env', 'PBS_FINGERPRINT') }}"  # Load from env 
+    discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from env
     max_retries: 5
     retry_delay: 60  # in seconds
     excluded_dirs: "/dev, /proc, /sys, /run, /tmp"
