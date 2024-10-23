@@ -20,7 +20,7 @@
 
     - name: Run Proxmox Backup with retry logic
       block:
-        - name: Attempt backup with verbosity
+        - name: Attempt backup without verbose
           command: >
             proxmox-backup-client backup root.pxar:/ --exclude dev --exclude proc --exclude sys --exclude run --exclude tmp --repository {{ pbs_repository }}
           register: backup_result
@@ -30,7 +30,7 @@
           until: backup_result is succeeded
           args:
             executable: /bin/bash
-            verbose: yes
+
 
         - name: Print backup attempt status
           debug:
