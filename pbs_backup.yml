@@ -1,14 +1,14 @@
 ---
 - name: Proxmox Backup Script with Discord Notification
-  hosts: servers # Set the hosts in semaphore
+  hosts: servers # Set the hosts in semaphore/ansible
   vars:
-    pbs_repository: "{{ lookup('env', 'PBS_REPOSITORY') }}"  # Load from env 
-    pbs_password: "{{ lookup('env', 'PBS_PASSWORD') }}"  # Load from env 
-    pbs_fingerprint: "{{ lookup('env', 'PBS_FINGERPRINT') }}"  # Load from env 
-    discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from env
-    max_retries: 5
+    pbs_repository: "{{ lookup('env', 'PBS_REPOSITORY') }}"  # Load from semaphore env variable or .env file
+    pbs_password: "{{ lookup('env', 'PBS_PASSWORD') }}"  # Load from semaphore env variable or .env file
+    pbs_fingerprint: "{{ lookup('env', 'PBS_FINGERPRINT') }}"  # Load from semaphore env variable or .env file
+    discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from semaphore env variable or .env file
+    max_retries: 5 # Retries in case there is a connection issue for some reason
     retry_delay: 60  # in seconds
-    excluded_dirs: "/dev, /proc, /sys, /run, /tmp"
+    excluded_dirs: "/dev, /proc, /sys, /run, /tmp" # Exclude non critical directories which may cause issues with backup
 
   tasks:
     - name: Initialize backup attempts
