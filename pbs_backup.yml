@@ -6,11 +6,19 @@
     pbs_password: "{{ lookup('env', 'PBS_PASSWORD') }}"  # Load from semaphore env variable or .env file
     pbs_fingerprint: "{{ lookup('env', 'PBS_FINGERPRINT') }}"  # Load from semaphore env variable or .env file
     discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"  # Load from semaphore env variable or .env file
-    max_retries: 5 # Retries in case there is a connection issue for some reason
-    retry_delay: 60  # in seconds
+    max_retries: 1 # Retries in case there is a connection issue for some reason
+    retry_delay: 10  # in seconds
     excluded_dirs: "/dev, /proc, /sys, /run, /tmp" # Exclude non critical directories which may cause issues with backup
 
   tasks:
+    - name: Debug environment variables
+      debug:
+        msg:
+          - "PBS_REPOSITORY: {{ pbs_repository }}"
+          - "PBS_PASSWORD: {{ pbs_password }}"
+          - "PBS_FINGERPRINT: {{ pbs_fingerprint }}"
+          - "DISCORD_WEBHOOK_URL: {{ discord_webhook_url }}"
+
     - name: Initialize backup attempts
       set_fact:
         retry_count: 0
