@@ -7,25 +7,21 @@
   hosts: servers
   tasks:
     - name: Copy the universal .env file to the Docker Compose directory
-      # Copies the shared .env file from the specified location to the Docker Compose directory on each server
       copy:
         src: "{{ env_file_path }}"
         dest: "{{ compose_dir }}/.env"
-        remote_src: yes  # Ensures the .env file is read from the remote server, not the Ansible controller
+        remote_src: yes
         mode: '0644'
 
-    - name: Pull new Docker images using the specified docker command
-      # Runs 'docker compose pull' using the docker command specified in the inventory file for each server
-      shell: "{{ docker_command }} docker-compose pull"
+    - name: Pull new Docker images using the correct docker-compose command
+      shell: "{{ docker_command }} pull"
       args:
-        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
+        chdir: "{{ compose_dir }}"
 
-    - name: Recreate and start containers using the specified docker command
-      # Runs 'docker compose up -d' to recreate and start containers with the updated images
-      shell: "{{ docker_command }} docker-compose up -d"
+    - name: Recreate and start containers using the correct docker-compose command
+      shell: "{{ docker_command }} up -d"
       args:
-        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
-
+        chdir: "{{ compose_dir }}"
 
 # Ex inventory file
 # [servers]
