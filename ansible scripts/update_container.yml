@@ -8,8 +8,9 @@
   tasks:
     - name: Copy the universal .env file to the Docker Compose directory
       copy:
-        src: "{{ env_file_path }}"  # Universal .env path from inventory
+        src: "{{ env_file_path }}"  # Path to the .env file from the inventory (on remote server)
         dest: "{{ compose_dir }}/.env"
+        remote_src: yes  # This tells Ansible the source file is on the remote server
         mode: '0644'
 
     - name: Pull new Docker images using the .env file
@@ -21,6 +22,7 @@
       shell: docker-compose up -d
       args:
         chdir: "{{ compose_dir }}"
+
 
 
 
