@@ -6,15 +6,23 @@
   become: yes
   hosts: servers
   tasks:
-    - name: Pull new Docker images using universal .env file
+    - name: Copy the universal .env file to the Docker Compose directory
+      copy:
+        src: "{{ env_file_path }}"  # Universal .env path from inventory
+        dest: "{{ compose_dir }}/.env"
+        mode: '0644'
+
+    - name: Pull new Docker images using the .env file
       shell: docker-compose pull
       args:
-        chdir: "{{ compose_dir }}" # set compose_dir in your inventory file ex provided below
+        chdir: "{{ compose_dir }}"
 
     - name: Recreate and start containers with the updated image tag
       shell: docker-compose up -d
       args:
         chdir: "{{ compose_dir }}"
+
+
 
 # Ex inventory file
 # [servers]
