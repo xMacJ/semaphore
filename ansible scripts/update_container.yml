@@ -26,15 +26,6 @@
       args:
         chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
 
-
-
-
-
-
-
-
-
-
 # Ex inventory file
 # [servers]
 # 192.168.23.7 ansible_user=mac compose_dir=/home/mac/docker_volumes/dozzle
