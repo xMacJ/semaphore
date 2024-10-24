@@ -14,6 +14,23 @@
         remote_src: yes  # Ensures the .env file is read from the remote server, not the Ansible controller
         mode: '0644'
 
+    - name: Pull new Docker images using the specified docker command
+      # Runs 'docker compose pull' using the docker command specified in the inventory file for each server
+      shell: "{{ docker_command }} compose pull"
+      args:
+        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
+
+    - name: Recreate and start containers using the specified docker command
+      # Runs 'docker compose up -d' to recreate and start containers with the updated images
+      shell: "{{ docker_command }} compose up -d"
+      args:
+        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
+
+    - name: Remove unused Docker images
+      # Removes unused Docker images to free up space by running 'docker image prune -a -f'
+      command: "{{ docker_command }} image prune -a -f"
+
+
 # Ex inventory file
 # [servers]
 # 192.168.23.7 ansible_user=mac compose_dir=/home/mac/docker_volumes/dozzle
