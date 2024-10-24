@@ -13,30 +13,16 @@
         remote_src: yes
         mode: '0644'
 
-    - name: Check if 'docker-compose' or 'docker compose' should be used
-      shell: "{{ docker_command | default('docker-compose') }} version"
-      ignore_errors: yes
-      register: docker_compose_check
-
-    - name: Pull new Docker images using docker-compose or docker compose
-      shell: |
-        {% if docker_compose_check.rc == 0 %}
-        {{ docker_command | default('docker-compose') }} pull
-        {% else %}
-        docker compose pull
-        {% endif %}
+    - name: Pull new Docker images using docker-compose
+      shell: docker-compose pull
       args:
         chdir: "{{ compose_dir }}"
 
-    - name: Recreate and start containers with docker-compose or docker compose
-      shell: |
-        {% if docker_compose_check.rc == 0 %}
-        {{ docker_command | default('docker-compose') }} up -d
-        {% else %}
-        docker compose up -d
-        {% endif %}
+    - name: Recreate and start containers with docker-compose
+      shell: docker-compose up -d
       args:
         chdir: "{{ compose_dir }}"
+
 
 
 
