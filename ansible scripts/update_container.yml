@@ -13,15 +13,31 @@
         remote_src: yes
         mode: '0644'
 
+    - name: Check if 'docker-compose' is available
+      shell: which docker-compose
+      ignore_errors: yes
+      register: docker_compose_check
+
     - name: Pull new Docker images using the correct docker-compose command
-      shell: "{{ docker_command }} compose pull"
+      shell: |
+        {% if docker_compose_check.rc == 0 %}
+        docker-compose pull
+        {% else %}
+        docker-compose pull
+        {% endif %}
       args:
         chdir: "{{ compose_dir }}"
 
     - name: Recreate and start containers using the correct docker-compose command
-      shell: "{{ docker_command }} compose up -d"
+      shell: |
+        {% if docker_compose_check.rc == 0 %}
+        docker-compose up -d
+        {% else %}
+        docker-compose up -d
+        {% endif %}
       args:
         chdir: "{{ compose_dir }}"
+
 
 # Ex inventory file
 # [servers]
