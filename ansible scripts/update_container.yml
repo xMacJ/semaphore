@@ -16,13 +16,13 @@
 
     - name: Pull new Docker images using the specified docker command
       # Runs 'docker compose pull' using the docker command specified in the inventory file for each server
-      shell: "{{ docker_command }} pull"
+      shell: "{{ docker_command }} docker pull"
       args:
         chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
 
     - name: Recreate and start containers using the specified docker command
       # Runs 'docker compose up -d' to recreate and start containers with the updated images
-      shell: "{{ docker_command }} up -d"
+      shell: "{{ docker_command }} docker up -d"
       args:
         chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
 
