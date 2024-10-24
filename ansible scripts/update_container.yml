@@ -1,0 +1,23 @@
+# This playbook pulls the latest Docker images and restarts containers on multiple servers.
+# Each server uses a unique Docker Compose directory specified in the inventory (see below).
+# The universal .env file in the compose files provides the container tag and other variables.
+---
+- name: Update containers on all servers
+  become: yes
+  hosts: servers
+  tasks:
+    - name: Pull new Docker images using universal .env file
+      shell: docker-compose pull
+      args:
+        chdir: "{{ compose_dir }}" # set compose_dir in your inventory file ex provided below
+
+    - name: Recreate and start containers with the updated image tag
+      shell: docker-compose up -d
+      args:
+        chdir: "{{ compose_dir }}"
+
+# Ex inventory file
+# [servers]
+# 192.168.23.7 ansible_user=mac compose_dir=/home/mac/docker_volumes/dozzle
+# 192.168.23.8 ansible_user=mac compose_dir=/home/mac/docker_volumes/dozzle
+
