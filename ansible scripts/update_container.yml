@@ -13,15 +13,18 @@
         remote_src: yes  # This tells Ansible the source file is on the remote server
         mode: '0644'
 
-    - name: Pull new Docker images using the .env file
-      shell: docker-compose pull
+    - name: Pull new Docker images using the docker command
+      shell: |
+        {{ docker_command | default('docker-compose') }} pull
       args:
         chdir: "{{ compose_dir }}"
 
-    - name: Recreate and start containers with the updated image tag
-      shell: docker-compose up -d
+    - name: Recreate and start containers with the docker command
+      shell: |
+        {{ docker_command | default('docker-compose') }} up -d
       args:
         chdir: "{{ compose_dir }}"
+
 
 
 
