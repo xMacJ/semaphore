@@ -7,36 +7,28 @@
   hosts: servers
   tasks:
     - name: Copy the universal .env file to the Docker Compose directory
+      # Copies the shared .env file from the specified location to the Docker Compose directory on each server
       copy:
         src: "{{ env_file_path }}"
         dest: "{{ compose_dir }}/.env"
-        remote_src: yes
+        remote_src: yes  # Ensures the .env file is read from the remote server, not the Ansible controller
         mode: '0644'
 
-    - name: Check if 'docker-compose' or 'docker compose' should be used
-      shell: "{{ docker_command | default('docker-compose') }} version"
-      ignore_errors: yes
-      register: docker_compose_check
-
-    - name: Pull new Docker images using docker-compose or docker compose
-      shell: |
-        {% if docker_compose_check.rc == 0 %}
-        {{ docker_command | default('docker-compose') }} pull
-        {% else %}
-        docker compose pull
-        {% endif %}
+    - name: Pull new Docker images using the specified docker command
+      # Runs 'docker compose pull' using the docker command specified in the inventory file for each server
+      shell: "{{ docker_command }} compose pull"
       args:
-        chdir: "{{ compose_dir }}"
+        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
 
-    - name: Recreate and start containers with docker-compose or docker compose
-      shell: |
-        {% if docker_compose_check.rc == 0 %}
-        {{ docker_command | default('docker-compose') }} up -d
-        {% else %}
-        docker compose up -d
-        {% endif %}
+    - name: Recreate and start containers using the specified docker command
+      # Runs 'docker compose up -d' to recreate and start containers with the updated images
+      shell: "{{ docker_command }} compose up -d"
       args:
-        chdir: "{{ compose_dir }}"
+        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
+
+
+
+
 
 
 
