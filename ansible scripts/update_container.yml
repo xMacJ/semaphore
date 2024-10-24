@@ -26,11 +26,7 @@
       args:
         chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
 
-
-
-
 # Ex inventory file
 # [servers]
-# 192.168.23.7 ansible_user=mac compose_dir=/home/mac/docker_volumes/dozzle
-# 192.168.23.8 ansible_user=mac compose_dir=/home/mac/docker_volumes/dozzle
-
+# 192.168.1.7 ansible_user=mac compose_dir=/home/mac/docker_volumes/beszel env_file_path=/mnt/Apex/env_files/beszel/.env docker_command="/bin/docker"
+# 192.168.1.10 ansible_user=mac compose_dir=/volume1/Apex/docker_volumes/beszel env_file_path=/volume1/Apex/env_files/beszel/.env docker_command="/usr/local/bin/docker"
