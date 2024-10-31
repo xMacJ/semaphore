@@ -1,6 +1,6 @@
 ---
 - name: Restart Docker on Synology NAS
-  hosts: servers  # Define your host or group in the inventory file
+  hosts: nas  # Define your host or group in the inventory file
   become: true             # Run commands with sudo
   tasks:
     - name: Restart Docker service
