@@ -1,0 +1,11 @@
+---
+- name: Recreate Container
+  become: yes
+  hosts: servers
+  tasks:
+    - name: Recreate and start a specific container using docker-compose
+      # Recreates and starts only the specified container
+      shell: "{{ docker_command }}-compose up -d --no-deps --force-recreate {{ container_name }}"
+      args:
+        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
+
