@@ -1,11 +1,11 @@
 ---
-- name: Recreate Container
-  become: yes
+- name: Force recreate in a specific directory using docker-compose
   hosts: servers
+  become: yes
   tasks:
-    - name: Recreate and start a specific container using docker-compose
-      # Recreates and starts only the specified container
-      shell: "{{ docker_command }}-compose up -d --no-deps --force-recreate {{ container_name }}"
+    - name: Force recreate and start containers in the specified location
+      shell: "{{ docker_command }}-compose up -d --force-recreate"
       args:
-        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
+        chdir: "{{ compose_dir }}"  # Directory specified in the inventory for docker-compose.yml
+
 
