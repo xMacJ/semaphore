@@ -7,24 +7,28 @@
   hosts: servers
   tasks:
     - name: Copy the universal .env file to the Docker Compose directory
-      # Copies the shared .env file from the specified source path to the Docker Compose directory on each server
       copy:
-        src: "{{ env_file_path }}"  # The path to the universal .env file (defined per server in the inventory)
-        dest: "{{ compose_dir }}/.env"  # The Docker Compose directory for each server
-        remote_src: yes  # Ensures the .env file is sourced from the remote server
-        mode: '0644'  # Sets file permissions
+        src: "{{ env_file_path }}"
+        dest: "{{ compose_dir }}/.env"
+        remote_src: yes
+        mode: '0644'
 
     - name: Pull new Docker images using docker-compose
-      # Runs the 'docker-compose pull' command to pull the latest versions of images, using the specified Docker path
-      shell: "{{ docker_command }}-compose pull"  # Uses the 'docker_command' to specify the correct Docker location
+      shell: "{{ docker_command }}-compose pull"
       args:
-        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
+        chdir: "{{ compose_dir }}"
+
+    - name: Stop and remove existing containers
+      shell: "{{ docker_command }}-compose down --remove-orphans"
+      args:
+        chdir: "{{ compose_dir }}"
+      ignore_errors: yes  # Ignore errors in case no containers exist
 
     - name: Recreate and start containers using docker-compose
-      # Runs the 'docker-compose up -d' command to recreate and start containers with the updated images
-      shell: "{{ docker_command }}-compose up -d"  # Uses the 'docker_command' to specify the correct Docker location
+      shell: "{{ docker_command }}-compose up -d"
       args:
-        chdir: "{{ compose_dir }}"  # Runs the command in the directory where docker-compose.yml is located
+        chdir: "{{ compose_dir }}"
+
 
 # Ex inventory file
 # [servers]
