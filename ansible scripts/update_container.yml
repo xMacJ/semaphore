@@ -14,12 +14,12 @@
         mode: '0644'
 
     - name: Pull new Docker images using docker compose
-      shell: "{{ docker_command  }} compose pull"
+      shell: "{{ docker_command  }} docker-compose pull"
       args:
         chdir: "{{ compose_dir }}"
 
     - name: Recreate and start containers using docker compose
-      shell: "{{ docker_command  }} compose up --force-recreate -d"
+      shell: "{{ docker_command  }} docker-compose up --force-recreate -d"
       args:
         chdir: "{{ compose_dir }}"
 
