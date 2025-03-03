@@ -12,10 +12,6 @@
         dest: "{{ compose_dir }}/.env"
         remote_src: yes
         mode: '0644'
-    - name: Stop and remove existing containers
-      shell: "{{ docker_command }}-compose down --remove-orphans --volumes"
-      args:
-        chdir: "{{ compose_dir }}"
 
     - name: Pull new Docker images using docker-compose
       shell: "{{ docker_command }}-compose pull"
@@ -23,7 +19,7 @@
         chdir: "{{ compose_dir }}"
 
     - name: Recreate and start containers using docker-compose
-      shell: "{{ docker_command }}-compose up -d"
+      shell: "{{ docker_command }}-docker-compose up --force-recreate"
       args:
         chdir: "{{ compose_dir }}"
 
