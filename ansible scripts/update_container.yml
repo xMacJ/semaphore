@@ -13,16 +13,21 @@
         remote_src: yes
         mode: '0644'
 
-    - name: Pull new Docker images using docker compose
-      shell: "{{ docker_command  }} docker-compose pull"
+    - name: Pull new Docker images using docker-compose
+      shell: "{{ docker_command }}-compose pull"
       args:
         chdir: "{{ compose_dir }}"
 
-    - name: Recreate and start containers using docker compose
-      shell: "{{ docker_command  }} docker-compose up --force-recreate -d"
+    - name: Stop and remove existing containers
+      shell: "{{ docker_command }}-compose down --remove-orphans"
       args:
         chdir: "{{ compose_dir }}"
+      ignore_errors: yes  # Ignore errors in case no containers exist
 
+    - name: Recreate and start containers using docker-compose
+      shell: "{{ docker_command }}-compose up --force-recreate -d"
+      args:
+        chdir: "{{ compose_dir }}"
 
 
 # Ex inventory file
