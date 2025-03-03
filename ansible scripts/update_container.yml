@@ -12,14 +12,13 @@
         dest: "{{ compose_dir }}/.env"
         remote_src: yes
         mode: '0644'
-
-    - name: Pull new Docker images using docker-compose
-      shell: "{{ docker_command }}-compose pull"
+    - name: Stop and remove existing containers
+      shell: "{{ docker_command }}-compose down --remove-orphans --volumes"
       args:
         chdir: "{{ compose_dir }}"
 
-    - name: Stop and remove existing containers
-      shell: "{{ docker_command }}-compose down --remove-orphans --volumes"
+    - name: Pull new Docker images using docker-compose
+      shell: "{{ docker_command }}-compose pull"
       args:
         chdir: "{{ compose_dir }}"
 
