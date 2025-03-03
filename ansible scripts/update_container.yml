@@ -13,13 +13,13 @@
         remote_src: yes
         mode: '0644'
 
-    - name: Pull new Docker images using docker-compose
-      shell: "{{ docker_command }} pull"
+    - name: Pull new Docker images using docker compose
+      shell: "{{ docker_cli_bin }} compose pull"
       args:
         chdir: "{{ compose_dir }}"
 
-    - name: Recreate and start containers using docker-compose
-      shell: "{{ docker_command }} up --force-recreate -d"
+    - name: Recreate and start containers using docker compose
+      shell: "{{ docker_cli_bin }} compose up --force-recreate -d"
       args:
         chdir: "{{ compose_dir }}"
 
