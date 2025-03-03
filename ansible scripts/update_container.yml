@@ -19,10 +19,9 @@
         chdir: "{{ compose_dir }}"
 
     - name: Stop and remove existing containers
-      shell: "{{ docker_command }}-compose down --remove-orphans"
+      shell: "{{ docker_command }}-compose down --remove-orphans --volumes"
       args:
         chdir: "{{ compose_dir }}"
-      ignore_errors: yes  # Ignore errors in case no containers exist
 
     - name: Recreate and start containers using docker-compose
       shell: "{{ docker_command }}-compose up -d"
